@@ -8,24 +8,24 @@ libmfw_gst_beep_la_SOURCES =  beep.c beepregistry.c beepdec.c beeptypefind.c
 # flags used to compile this plugin
 # we use the GST_LIBS flags because we might be using plug-in libs
 if PLATFORM_IS_MX2X
-libmfw_gst_beep_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer $(FSL_MM_CORE_CFLAGS) -I../../../../inc/plugin -I../../../../libs -I../../../../inc/core_lib/uni_audio -D_ARM9 -march=armv5te -mcpu=arm926ej-s
+libmfw_gst_beep_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer $(FSL_MM_CORE_CFLAGS) -I$(top_srcdir)/inc/plugin -I$(top_srcdir)/libs -I$(top_srcdir)/inc/core_lib/uni_audio -D_ARM9 -march=armv5te -mcpu=arm926ej-s
 libmfw_gst_beep_la_LIBADD = $(GST_BASE_LIBS) $(GST_PLUGINS_BASE_LIBS) $(GST_LIBS) -lgstaudio-$(GST_MAJORMINOR) -lgstriff-@GST_MAJORMINOR@ -lgsttag-@GST_MAJORMINOR@ -ldl ../../../../libs/libgstfsl-@GST_MAJORMINOR@.la
 endif
 
 
 if PLATFORM_IS_MX3X
-libmfw_gst_beep_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer $(FSL_MM_CORE_CFLAGS) -I../../../../inc/plugin -I../../../../libs -I../../../../inc/core_lib/uni_audio -D_ARM11
+libmfw_gst_beep_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer $(FSL_MM_CORE_CFLAGS) -I$(top_srcdir)/inc/plugin -I$(top_srcdir)/libs -I$(top_srcdir)/inc/core_lib/uni_audio -D_ARM11
 libmfw_gst_beep_la_LIBADD = $(GST_BASE_LIBS) $(GST_PLUGINS_BASE_LIBS) $(GST_LIBS) -lgstaudio-$(GST_MAJORMINOR) -lgstriff-@GST_MAJORMINOR@ -lgsttag-@GST_MAJORMINOR@ -ldl ../../../../libs/libgstfsl-@GST_MAJORMINOR@.la
 endif
 
 
 if PLATFORM_IS_MX5X
-libmfw_gst_beep_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer $(FSL_MM_CORE_CFLAGS) -I../../../../inc/plugin -I../../../../libs -I../../../../inc/core_lib/uni_audio -D_ARM12
+libmfw_gst_beep_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer $(FSL_MM_CORE_CFLAGS) -I$(top_srcdir)/inc/plugin -I$(top_srcdir)/libs -I$(top_srcdir)/inc/core_lib/uni_audio -D_ARM12
 libmfw_gst_beep_la_LIBADD = $(GST_BASE_LIBS) $(GST_PLUGINS_BASE_LIBS) $(GST_LIBS) -lgstaudio-$(GST_MAJORMINOR) -lgstriff-@GST_MAJORMINOR@ -lgsttag-@GST_MAJORMINOR@ -ldl ../../../../libs/libgstfsl-@GST_MAJORMINOR@.la
 endif
 
 if PLATFORM_IS_MX6X
-libmfw_gst_beep_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer $(FSL_MM_CORE_CFLAGS) -I../../../../inc/plugin -I../../../../libs -I../../../../inc/core_lib/uni_audio -D_ARM12
+libmfw_gst_beep_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer $(FSL_MM_CORE_CFLAGS) -I$(top_srcdir)/inc/plugin -I$(top_srcdir)/libs -I$(top_srcdir)/inc/core_lib/uni_audio -D_ARM12
 libmfw_gst_beep_la_LIBADD = $(GST_BASE_LIBS) $(GST_PLUGINS_BASE_LIBS) $(GST_LIBS) -lgstaudio-$(GST_MAJORMINOR) -lgstriff-@GST_MAJORMINOR@ -lgsttag-@GST_MAJORMINOR@ -ldl ../../../../libs/libgstfsl-@GST_MAJORMINOR@.la
 endif
 

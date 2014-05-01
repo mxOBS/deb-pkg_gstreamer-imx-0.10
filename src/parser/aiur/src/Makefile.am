@@ -4,7 +4,7 @@ plugin_LTLIBRARIES = libmfw_gst_aiur_demux.la
 # for the next set of variables, rename the prefix if you renamed the .la
 # sources used to compile this plug-in
 libmfw_gst_aiur_demux_la_SOURCES =  aiur.c aiurregistry.c aiurstreamcache.c aiuridxtab.c aiurdemux.c aiurtypefind.c
-libmfw_gst_aiur_demux_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer -DFSL_AVI_DRM_SUPPORT $(FSL_MM_CORE_CFLAGS) -I../../../../inc/plugin -I../../../../inc/core_lib/parser -I../../../../libs
+libmfw_gst_aiur_demux_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer -DFSL_AVI_DRM_SUPPORT $(FSL_MM_CORE_CFLAGS) -I$(top_srcdir)/inc/plugin -I$(top_srcdir)/inc/core_lib/parser -I$(top_srcdir)/libs
 libmfw_gst_aiur_demux_la_LIBADD = $(GST_BASE_LIBS) $(GST_PLUGINS_BASE_LIBS) $(GST_LIBS)  -lgstriff-@GST_MAJORMINOR@ -lgsttag-@GST_MAJORMINOR@ -ldl ../../../../libs/libgstfsl-@GST_MAJORMINOR@.la
 libmfw_gst_aiur_demux_la_CPPFLAGS = $(GST_LIBS_CPPFLAGS) 
 libmfw_gst_aiur_demux_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) $(FSL_MM_CORE_LIBS) 

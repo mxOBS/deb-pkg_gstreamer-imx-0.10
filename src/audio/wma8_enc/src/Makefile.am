@@ -11,7 +11,7 @@ libmfw_gst_wma8enc_la_SOURCES = mfw_gst_wma8enc.c
 
 # flags used to compile this plugin
 # add other _CFLAGS and _LIBS as needed
-libmfw_gst_wma8enc_la_CFLAGS = $(GST_CFLAGS) $(FSL_MM_CORE_CFLAGS)  -I../../../../inc/plugin -I../../../../inc/core_lib
+libmfw_gst_wma8enc_la_CFLAGS = $(GST_CFLAGS) $(FSL_MM_CORE_CFLAGS)  -I$(top_srcdir)/inc/plugin -I$(top_srcdir)/inc/core_lib
 libmfw_gst_wma8enc_la_LIBADD = $(GST_LIBS) -l_wma_muxer_arm11_ELINUX -lgstbase-$(GST_MAJORMINOR) -l_wma8_enc_arm11_elinux 
 libmfw_gst_wma8enc_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) $(FSL_MM_CORE_LIBS) 
 

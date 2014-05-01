@@ -26,19 +26,19 @@ libmfw_gst_mp3enc_la_SOURCES = mfw_gst_mp3enc.c
 # flags used to compile this plugin
 # add other _CFLAGS and _LIBS as needed
 if PLATFORM_IS_MX2X
-libmfw_gst_mp3enc_la_CFLAGS = $(GST_CFLAGS) $(FSL_MM_CORE_CFLAGS) -I../../../../inc/plugin -I../../../../inc/core_lib -march=armv5te -mcpu=arm926ej-s
+libmfw_gst_mp3enc_la_CFLAGS = $(GST_CFLAGS) $(FSL_MM_CORE_CFLAGS) -I$(top_srcdir)/inc/plugin -I$(top_srcdir)/inc/core_lib -march=armv5te -mcpu=arm926ej-s
 endif
 
 
 if PLATFORM_IS_MX3X
-libmfw_gst_mp3enc_la_CFLAGS = $(GST_CFLAGS) $(FSL_MM_CORE_CFLAGS) -I../../../../inc/plugin -I../../../../inc/core_lib 
+libmfw_gst_mp3enc_la_CFLAGS = $(GST_CFLAGS) $(FSL_MM_CORE_CFLAGS) -I$(top_srcdir)/inc/plugin -I$(top_srcdir)/inc/core_lib 
 endif
 
 if PLATFORM_IS_MX5X
-libmfw_gst_mp3enc_la_CFLAGS = $(GST_CFLAGS) $(FSL_MM_CORE_CFLAGS) -I../../../../inc/plugin -I../../../../inc/core_lib 
+libmfw_gst_mp3enc_la_CFLAGS = $(GST_CFLAGS) $(FSL_MM_CORE_CFLAGS) -I$(top_srcdir)/inc/plugin -I$(top_srcdir)/inc/core_lib 
 endif
 if PLATFORM_IS_MX6X
-libmfw_gst_mp3enc_la_CFLAGS = $(GST_CFLAGS) $(FSL_MM_CORE_CFLAGS) -I../../../../inc/plugin -I../../../../inc/core_lib 
+libmfw_gst_mp3enc_la_CFLAGS = $(GST_CFLAGS) $(FSL_MM_CORE_CFLAGS) -I$(top_srcdir)/inc/plugin -I$(top_srcdir)/inc/core_lib 
 endif
 
 

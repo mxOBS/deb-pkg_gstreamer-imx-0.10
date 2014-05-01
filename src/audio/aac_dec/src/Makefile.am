@@ -22,7 +22,7 @@ libmfw_gst_aacdec_la_SOURCES =  mfw_gst_aacdec.c
 # flags used to compile this plugin
 # we use the GST_LIBS flags because we might be using plug-in libs
 libmfw_gst_aacdec_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -DMPEG4 -DARM_OPT_MACROS -DLC -DPUSH_MODE -fno-omit-frame-pointer -fPIC
-libmfw_gst_aacdec_la_CPPFLAGS = $(GST_LIBS_CPPFLAGS) $(FSL_MM_CORE_CFLAGS) -I../../../../inc/plugin
+libmfw_gst_aacdec_la_CPPFLAGS = $(GST_LIBS_CPPFLAGS) $(FSL_MM_CORE_CFLAGS) -I$(top_srcdir)/inc/plugin
 
 
 if PLATFORM_IS_MX2X

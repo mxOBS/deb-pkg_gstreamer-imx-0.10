@@ -28,19 +28,19 @@ libmfw_gst_mpeg4aspdec_la_SOURCES = mfw_gst_mpeg4asp_dec.c
 # flags used to compile this plugin
 # we use the GST_LIBS flags because we might be using plug-in libs
 if PLATFORM_IS_MX2X
-libmfw_gst_mpeg4aspdec_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer -fPIC -DPADDED_OUTPUT -DOUTPUT_BUFFER_CHANGES $(FSL_MM_CORE_CFLAGS) -I../../../../inc/plugin -I../../../../inc/core_lib -DDIRECT_RENDER_VERSION=2 -DFRAMEDROPING_ENALBED -march=armv5te -mcpu=arm926ej-s -I../../../../libs/me -I../../../../libs/gstbufmeta
+libmfw_gst_mpeg4aspdec_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer -fPIC -DPADDED_OUTPUT -DOUTPUT_BUFFER_CHANGES $(FSL_MM_CORE_CFLAGS) -I$(top_srcdir)/inc/plugin -I$(top_srcdir)/inc/core_lib -DDIRECT_RENDER_VERSION=2 -DFRAMEDROPING_ENALBED -march=armv5te -mcpu=arm926ej-s -I$(top_srcdir)/libs/me -I$(top_srcdir)/libs/gstbufmeta
 endif
 
 if PLATFORM_IS_MX3X
-libmfw_gst_mpeg4aspdec_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer -fPIC -DPADDED_OUTPUT -DOUTPUT_BUFFER_CHANGES $(FSL_MM_CORE_CFLAGS) -I../../../../inc/plugin -I../../../../inc/core_lib -DDIRECT_RENDER_VERSION=2 -DFRAMEDROPING_ENALBED -I../../../../libs/me -I../../../../libs/gstbufmeta
+libmfw_gst_mpeg4aspdec_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer -fPIC -DPADDED_OUTPUT -DOUTPUT_BUFFER_CHANGES $(FSL_MM_CORE_CFLAGS) -I$(top_srcdir)/inc/plugin -I$(top_srcdir)/inc/core_lib -DDIRECT_RENDER_VERSION=2 -DFRAMEDROPING_ENALBED -I$(top_srcdir)/libs/me -I$(top_srcdir)/libs/gstbufmeta
 endif
 
 if PLATFORM_IS_MX5X
-libmfw_gst_mpeg4aspdec_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer -fPIC -DPADDED_OUTPUT -DOUTPUT_BUFFER_CHANGES $(FSL_MM_CORE_CFLAGS) -I../../../../inc/plugin -I../../../../inc/core_lib -DDIRECT_RENDER_VERSION=2 -DFRAMEDROPING_ENALBED -I../../../../libs/me -I../../../../libs/gstbufmeta
+libmfw_gst_mpeg4aspdec_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer -fPIC -DPADDED_OUTPUT -DOUTPUT_BUFFER_CHANGES $(FSL_MM_CORE_CFLAGS) -I$(top_srcdir)/inc/plugin -I$(top_srcdir)/inc/core_lib -DDIRECT_RENDER_VERSION=2 -DFRAMEDROPING_ENALBED -I$(top_srcdir)/libs/me -I$(top_srcdir)/libs/gstbufmeta
 endif
 
 if PLATFORM_IS_MX6X
-libmfw_gst_mpeg4aspdec_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer -fPIC -DPADDED_OUTPUT -DOUTPUT_BUFFER_CHANGES $(FSL_MM_CORE_CFLAGS) -I../../../../inc/plugin -I../../../../inc/core_lib -DDIRECT_RENDER_VERSION=2 -DFRAMEDROPING_ENALBED -I../../../../libs/me -I../../../../libs/gstbufmeta
+libmfw_gst_mpeg4aspdec_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer -fPIC -DPADDED_OUTPUT -DOUTPUT_BUFFER_CHANGES $(FSL_MM_CORE_CFLAGS) -I$(top_srcdir)/inc/plugin -I$(top_srcdir)/inc/core_lib -DDIRECT_RENDER_VERSION=2 -DFRAMEDROPING_ENALBED -I$(top_srcdir)/libs/me -I$(top_srcdir)/libs/gstbufmeta
 endif
 
 

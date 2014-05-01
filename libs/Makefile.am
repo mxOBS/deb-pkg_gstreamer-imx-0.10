@@ -35,7 +35,7 @@ endif
 endif
 
 
-libgstfsl_@GST_MAJORMINOR@_la_CFLAGS  = $(GST_BASE_CFLAGS) $(IPU_CFLAGS) -I../inc/common
+libgstfsl_@GST_MAJORMINOR@_la_CFLAGS  = $(GST_BASE_CFLAGS) $(IPU_CFLAGS) -I$(top_srcdir)/inc/common
 
 if PLATFORM_IS_MX5X
 libgstfsl_@GST_MAJORMINOR@_la_CFLAGS  += -DIPULIB

@@ -27,7 +27,7 @@ libmfw_gst_vpu_dec_la_SOURCES = mfw_gst_vpu_decoder.c mfw_gst_vpu_thread.c
 
 # flags used to compile this plugin
 # we use the GST_LIBS flags because we might be using plug-in libs
-libmfw_gst_vpu_dec_la_CFLAGS = $(GST_BASE_CFLAGS)  -O2 $(VPU_CFLAGS) -I../../../../inc/plugin $(GST_PLATFORM_FLAGS) -DREALMEDIA -DDIVX -I../../../../libs/me -I../../../../libs/gstbufmeta 
+libmfw_gst_vpu_dec_la_CFLAGS = $(GST_BASE_CFLAGS)  -O2 $(VPU_CFLAGS) -I$(top_srcdir)/inc/plugin $(GST_PLATFORM_FLAGS) -DREALMEDIA -DDIVX -I$(top_srcdir)/libs/me -I$(top_srcdir)/libs/gstbufmeta 
 libmfw_gst_vpu_dec_la_LIBADD =  $(GST_BASE_LIBS) $(GST_LIBS) -lvpu -lgstvideo-0.10
 libmfw_gst_vpu_dec_la_LIBADD += ../../../../libs/libgstfsl-@GST_MAJORMINOR@.la
 libmfw_gst_vpu_dec_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) $(VPU_LIBS)
