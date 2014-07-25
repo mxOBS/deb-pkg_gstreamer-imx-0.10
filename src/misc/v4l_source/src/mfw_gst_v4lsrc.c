@@ -464,7 +464,6 @@ mfw_gst_v4lsrc_capture_setup (MFWGstV4LSrc * v4l_src)
   struct v4l2_format fmt = {0};
   struct v4l2_control ctrl = {0};
   struct v4l2_streamparm parm = {0};
-  struct v4l2_dbg_chip_ident chip = {0};
   struct v4l2_frmsizeenum fszenum = {0};
   gint input;
   gint fd_v4l = 0;
@@ -475,12 +474,6 @@ mfw_gst_v4lsrc_capture_setup (MFWGstV4LSrc * v4l_src)
     GST_ERROR (">>V4L_SRC: Unable to open %s", v4l_src->devicename);
     return 0;
   }
-
-  if (ioctl (fd_v4l, VIDIOC_DBG_G_CHIP_IDENT, &chip)) {
-    GST_ERROR ("VIDIOC_DBG_G_CHIP_IDENT failed.");
-  } else
-    GST_INFO ("sensor chip is %s", chip.match.name);
-
 
   if (v4l_src->crop_pixel) {
     in_width = v4l_src->capture_width - (2 * v4l_src->crop_pixel);
