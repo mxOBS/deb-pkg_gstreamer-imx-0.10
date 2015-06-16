@@ -1,0 +1,41 @@
+--- a/tools/gplay/Makefile.am
++++ b/tools/gplay/Makefile.am
+@@ -3,11 +3,12 @@
+ libgplaycore_la_SOURCES = mfw_gplay_core.c fsl_player_debug.c fsl_player_osal.c fsl_player_queue.c fsl_player_ui_message.c gst_snapshot.c
+ libgplaycore_la_CFLAGS  = $(GST_CFLAGS) 
+ libgplaycore_la_LDFLAGS = -version-info @GSTMXLIBS_VERSION@
+-libgplaycore_la_LIBADD = $(GST_LIBS) -lz
++libgplaycore_la_LIBADD = $(GST_LIBS) -lz -lglib-2.0
+ 
+ bin_PROGRAMS = gplay
+ gplay_SOURCES = mfw_gplay.c playlist.c
+ gplay_CFLAGS  = $(GST_CFLAGS) 
++gplay_LDFLAGS = -lglib-2.0
+ gplay_LDADD   = libgplaycore.la
+ 
+ noinst_HEADERS = \
+--- a/tools/gplay/Makefile.in
++++ b/tools/gplay/Makefile.in
+@@ -93,8 +93,8 @@
+ gplay_OBJECTS = $(am_gplay_OBJECTS)
+ gplay_DEPENDENCIES = libgplaycore.la
+ gplay_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+-	--mode=link $(CCLD) $(gplay_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+-	$(LDFLAGS) -o $@
++	--mode=link $(CCLD) $(gplay_CFLAGS) $(CFLAGS) $(gplay_LDFLAGS) \
++	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+ DEFAULT_INCLUDES = -I.@am__isrc@
+ depcomp = $(SHELL) $(top_srcdir)/depcomp
+ am__depfiles_maybe = depfiles
+@@ -286,9 +286,10 @@
+ libgplaycore_la_SOURCES = mfw_gplay_core.c fsl_player_debug.c fsl_player_osal.c fsl_player_queue.c fsl_player_ui_message.c gst_snapshot.c
+ libgplaycore_la_CFLAGS = $(GST_CFLAGS) 
+ libgplaycore_la_LDFLAGS = -version-info @GSTMXLIBS_VERSION@
+-libgplaycore_la_LIBADD = $(GST_LIBS) -lz
++libgplaycore_la_LIBADD = $(GST_LIBS) -lz -lglib-2.0
+ gplay_SOURCES = mfw_gplay.c playlist.c
+ gplay_CFLAGS = $(GST_CFLAGS) 
++gplay_LDFLAGS = -lglib-2.0
+ gplay_LDADD = libgplaycore.la
+ noinst_HEADERS = \
+     fsl_player_debug.h      \
