@@ -1,0 +1,36 @@
+Source: gstreamer-imx-0.10
+Priority: extra
+Maintainer: Josua Mayer <privacy@not.given>
+Build-Depends: debhelper (>= 9),
+ autotools-dev,
+ pkg-config,
+ libgstreamer0.10-dev,
+ libgstreamer-plugins-base0.10-dev,
+ libfslcodec-dev,
+ libfslparser-dev,
+ libvpu-imx6-dev,
+ libfslvpuwrap-dev,
+ libipu-dev,
+ libx11-dev,
+ libxext-dev,
+ kernel-cubox-i-dev,
+Standards-Version: 3.9.6
+Section: libs
+Vcs-Git: https://github.com/mxOBS/deb-pkg_gstreamer-imx-0.10.git
+Vcs-Browser: https://github.com/mxOBS/deb-pkg_gstreamer-imx-0.10
+
+Package: gstreamer0.10-imx
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, gstreamer0.10-plugins-base
+Description: GStreamer plugins for Freescale i.MX SoCs
+ This package provides gstreamer plugins for Freescale i.MX SoCs.
+ They implement manu audio and video-codecs, utilizing IPU and VPU.
+
+Package: gstreamer0.10-imx-dev
+Section: libdevel
+Architecture: any
+Depends: ${misc:Depends}
+Description: Development files for Freescale GStreamer plugins
+ This package provides decelopment files required to build against
+ Freescale's i.MX GStreamer plugins.
