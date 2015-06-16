@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2014, Freescale Semiconductor, Inc. 
+ * Copyright (c) 2005-2014, Freescale Semiconductor, Inc.
  */
 
 /*
@@ -1056,13 +1056,14 @@ mfw_gst_v4lsink_show_frame (GstBaseSink * basesink, GstBuffer * buf)
   }
 
 
-  /* if the input buffer stride is not multiple of 8, drop it since IPU does
-   * not support such buffer */
-
-  if ((v4l_info->width & 0x7) != 0) {
-    GST_ERROR ("buffer stride is (%d)not multiple of 8, drop it",
-        v4l_info->width);
-    return GST_FLOW_OK;
+  if (!(IS_PXP (v4l_info->chipcode))) {
+	  /* if the input buffer stride is not multiple of 8, drop it since IPU does
+	   * not support such buffer */
+	  if ((v4l_info->width & 0x7) != 0) {
+		  GST_ERROR ("buffer stride is (%d)not multiple of 8, drop it",
+				  v4l_info->width);
+		  return GST_FLOW_OK;
+      }
   }
 
   if (v4l_info->stream_on == TRUE || v4l_info->need_check_params == TRUE) {
@@ -1539,10 +1540,13 @@ mfw_gst_v4lsink_change_state (GstElement * element, GstStateChange transition)
           mfw_gst_v4lsink_create_event_thread (v4l_info);
 
         mfw_gst_xv4l2_refresh_geometry (v4l_info);
-      } else 
-          mfw_gst_set_gbl_alpha (v4l_info->fd_fb, 0);
+      } else {
+         if (!(IS_PXP (v4l_info->chipcode)))
+            mfw_gst_set_gbl_alpha (v4l_info->fd_fb, 0);
+      }
 #else
-      mfw_gst_set_gbl_alpha (v4l_info->fd_fb, 0);
+    if (!(IS_PXP (v4l_info->chipcode)))
+        mfw_gst_set_gbl_alpha (v4l_info->fd_fb, 0);
 #endif
 
       if (mfw_gst_v4l2_display_init (v4l_info, v4l_info->disp_width,
@@ -1683,7 +1687,7 @@ mfw_gst_v4lsink_init (MFW_GST_V4LSINK_INFO_T * v4l_info,
   v4l_info->axis_top = 0;
   v4l_info->axis_left = 0;
   v4l_info->rotate = 0;
-  v4l_info->prevRotate = 0;
+  v4l_info->prevRotate = -1;
   v4l_info->crop_left = 0;
   v4l_info->crop_right = 0;
   v4l_info->crop_top = 0;
@@ -1808,9 +1812,6 @@ mfw_gst_v4lsink_class_init (MFW_GST_V4LSINK_INFO_CLASS_T * klass)
   gstvs_class->render = GST_DEBUG_FUNCPTR (mfw_gst_v4lsink_show_frame);
   gstvs_class->buffer_alloc = GST_DEBUG_FUNCPTR (mfw_gst_v4lsink_buffer_alloc);
 
-  //only support below properties for IPU based SoC
-  CHIP_CODE chipcode = getChipCode ();
-  if (!IS_PXP (chipcode)) {
     g_object_class_install_property (gobject_class, DISP_WIDTH,
         g_param_spec_int ("disp-width",
           "Disp_Width",
@@ -1927,6 +1928,10 @@ mfw_gst_v4lsink_class_init (MFW_GST_V4LSINK_INFO_CLASS_T * klass)
             v4lstream_callback), NULL, NULL,
           g_cclosure_marshal_VOID__INT, G_TYPE_NONE, 1, G_TYPE_INT);
 #endif
+
+    //only support below properties for IPU based SoC
+    CHIP_CODE chipcode = getChipCode ();
+    if (!IS_PXP (chipcode)) {
 
     g_object_class_install_property (gobject_class, PROP_DEINTERLACE_MOTION,
         g_param_spec_int ("motion",
@@ -2337,7 +2342,7 @@ mfw_gst_v4lsink_get_type (void)
 
   }
 
-  GST_DEBUG_CATEGORY_INIT (mfw_gst_v4lsink_debug, "mfw_v4lsink",
+  GST_DEBUG_CATEGORY_INIT (mfw_gst_v4lsink_debug, "imxv4l2sink",
       0, "FSL V4L Sink");
 
   /* Register the v4l own buffer management */
@@ -2370,7 +2375,7 @@ IMPORTANT NOTES:    None
 static gboolean
 plugin_init (GstPlugin * plugin)
 {
-  if (!gst_element_register (plugin, "mfw_v4lsink", (FSL_GST_RANK_HIGH + 1),
+  if (!gst_element_register (plugin, "imxv4l2sink", (FSL_GST_RANK_HIGH + 1),
           MFW_GST_TYPE_V4LSINK))
     return FALSE;
 

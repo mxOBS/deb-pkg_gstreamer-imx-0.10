@@ -291,7 +291,8 @@ libmfw_gst_aacdec_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -DMPEG4 \
 	-DARM_OPT_MACROS -DLC -DPUSH_MODE -fno-omit-frame-pointer \
 	-fPIC $(am__append_1)
 libmfw_gst_aacdec_la_CPPFLAGS = $(GST_LIBS_CPPFLAGS) \
-	$(FSL_MM_CORE_CFLAGS) -I../../../../inc/plugin $(am__append_2)
+	$(FSL_MM_CORE_CFLAGS) -I$(top_srcdir)/inc/plugin \
+	$(am__append_2)
 libmfw_gst_aacdec_la_LIBADD = $(GST_BASE_LIBS) $(GST_PLUGINS_BASE_LIBS) $(GST_LIBS) -lgstaudio-$(GST_MAJORMINOR) -l$(CORELIB)
 libmfw_gst_aacdec_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) $(FSL_MM_CORE_LIBS) -lgstriff-@GST_MAJORMINOR@
 

@@ -8,7 +8,7 @@ libmfw_vpu_la_SOURCES =  vpu.c vpudec.c vpuenc.c
 # flags used to compile this plugin
 # we use the GST_LIBS flags because we might be using plug-in libs
 
-libmfw_vpu_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer $(FSL_MM_CORE_CFLAGS) -I../../../../inc/plugin  -I../../../../libs/me -I../../../../libs/gstbufmeta -I../../../../libs/gstsutils -I../../../../libs/gstnext -I../../../../inc/core_lib
+libmfw_vpu_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer $(FSL_MM_CORE_CFLAGS) -I$(top_srcdir)/inc/plugin  -I$(top_srcdir)/libs/me -I$(top_srcdir)/libs/gstbufmeta -I$(top_srcdir)/libs/gstsutils -I$(top_srcdir)/libs/gstnext -I$(top_srcdir)/inc/core_lib
 libmfw_vpu_la_LIBADD = $(GST_BASE_LIBS) $(GST_PLUGINS_BASE_LIBS) $(GST_LIBS)  -lgstriff-@GST_MAJORMINOR@ -lgsttag-@GST_MAJORMINOR@  
 
 libmfw_vpu_la_LIBADD += ../../../../libs/libgstfsl-@GST_MAJORMINOR@.la

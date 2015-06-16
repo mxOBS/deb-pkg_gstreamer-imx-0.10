@@ -26,21 +26,21 @@ libmfw_gst_wma10dec_la_SOURCES = mfw_gst_wma10dec.c
 # flags used to compile this plugin
 # we use the GST_LIBS flags because we might be using plug-in libs
 if PLATFORM_IS_MX2X
-libmfw_gst_wma10dec_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer -DGST_API -DGST_RAW_DECODER $(FSL_MM_CORE_CFLAGS) -I../../../../inc/plugin -march=armv5te -mcpu=arm926ej-s
+libmfw_gst_wma10dec_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer -DGST_API -DGST_RAW_DECODER $(FSL_MM_CORE_CFLAGS) -I$(top_srcdir)/inc/plugin -march=armv5te -mcpu=arm926ej-s
 endif
 
 
 if PLATFORM_IS_MX3X
-libmfw_gst_wma10dec_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer -DGST_API -DGST_RAW_DECODER $(FSL_MM_CORE_CFLAGS) -I../../../../inc/plugin
+libmfw_gst_wma10dec_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer -DGST_API -DGST_RAW_DECODER $(FSL_MM_CORE_CFLAGS) -I$(top_srcdir)/inc/plugin
 endif
 
 
 
 if PLATFORM_IS_MX5X
-libmfw_gst_wma10dec_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer -DGST_API -DGST_RAW_DECODER $(FSL_MM_CORE_CFLAGS) -I../../../../inc/plugin
+libmfw_gst_wma10dec_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer -DGST_API -DGST_RAW_DECODER $(FSL_MM_CORE_CFLAGS) -I$(top_srcdir)/inc/plugin
 endif
 if PLATFORM_IS_MX6X
-libmfw_gst_wma10dec_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer -DGST_API -DGST_RAW_DECODER $(FSL_MM_CORE_CFLAGS) -I../../../../inc/plugin
+libmfw_gst_wma10dec_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 -fno-omit-frame-pointer -DGST_API -DGST_RAW_DECODER $(FSL_MM_CORE_CFLAGS) -I$(top_srcdir)/inc/plugin
 endif
 
 

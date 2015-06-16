@@ -35,13 +35,13 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@PLATFORM_IS_MX233_TRUE@am__append_1 = -O2 $(GST_BASE_CFLAGS) -fPIC -fno-omit-frame-pointer -D_$(PLATFORM) -I../../../../inc/plugin -I../../../../inc/misc -march=armv5te
-@PLATFORM_IS_MX25_TRUE@am__append_2 = -O2 $(GST_BASE_CFLAGS) -fPIC -fno-omit-frame-pointer -D_$(PLATFORM) -I../../../../inc/plugin -I../../../../inc/misc -march=armv5te
-@PLATFORM_IS_MX27_TRUE@am__append_3 = -O2 $(GST_BASE_CFLAGS) -fPIC -fno-omit-frame-pointer -DENABLE_TVOUT -D_$(PLATFORM) -I../../../../inc/plugin -I../../../../inc/misc -march=armv5te
-@PLATFORM_IS_MX28_TRUE@am__append_4 = -O2 $(GST_BASE_CFLAGS) -fPIC -fno-omit-frame-pointer -D_$(PLATFORM) -I../../../../inc/plugin -I../../../../inc/misc -march=armv5te
-@PLATFORM_IS_MX3X_TRUE@am__append_5 = -O2 $(GST_BASE_CFLAGS) -fPIC -fno-omit-frame-pointer -DENABLE_TVOUT -D_$(PLATFORM) -I../../../../inc/plugin -I../../../../inc/misc
-@PLATFORM_IS_MX5X_TRUE@am__append_6 = -O2 $(GST_BASE_CFLAGS) -fPIC -fno-omit-frame-pointer -DENABLE_TVOUT -D_$(PLATFORM) -I../../../../inc/plugin -I../../../../inc/misc
-@PLATFORM_IS_MX6X_TRUE@am__append_7 = -O2 $(GST_BASE_CFLAGS) -fPIC -fno-omit-frame-pointer -DENABLE_TVOUT -D_$(PLATFORM) -I../../../../inc/plugin -I../../../../inc/misc
+@PLATFORM_IS_MX233_TRUE@am__append_1 = -O2 $(GST_BASE_CFLAGS) -fPIC -fno-omit-frame-pointer -D_$(PLATFORM) -I$(top_srcdir)/inc/plugin -I$(top_srcdir)/inc/misc -march=armv5te
+@PLATFORM_IS_MX25_TRUE@am__append_2 = -O2 $(GST_BASE_CFLAGS) -fPIC -fno-omit-frame-pointer -D_$(PLATFORM) -I$(top_srcdir)/inc/plugin -I$(top_srcdir)/inc/misc -march=armv5te
+@PLATFORM_IS_MX27_TRUE@am__append_3 = -O2 $(GST_BASE_CFLAGS) -fPIC -fno-omit-frame-pointer -DENABLE_TVOUT -D_$(PLATFORM) -I$(top_srcdir)/inc/plugin -I$(top_srcdir)/inc/misc -march=armv5te
+@PLATFORM_IS_MX28_TRUE@am__append_4 = -O2 $(GST_BASE_CFLAGS) -fPIC -fno-omit-frame-pointer -D_$(PLATFORM) -I$(top_srcdir)/inc/plugin -I$(top_srcdir)/inc/misc -march=armv5te
+@PLATFORM_IS_MX3X_TRUE@am__append_5 = -O2 $(GST_BASE_CFLAGS) -fPIC -fno-omit-frame-pointer -DENABLE_TVOUT -D_$(PLATFORM) -I$(top_srcdir)/inc/plugin -I$(top_srcdir)/inc/misc
+@PLATFORM_IS_MX5X_TRUE@am__append_6 = -O2 $(GST_BASE_CFLAGS) -fPIC -fno-omit-frame-pointer -DENABLE_TVOUT -D_$(PLATFORM) -I$(top_srcdir)/inc/plugin -I$(top_srcdir)/inc/misc
+@PLATFORM_IS_MX6X_TRUE@am__append_7 = -O2 $(GST_BASE_CFLAGS) -fPIC -fno-omit-frame-pointer -DENABLE_TVOUT -D_$(PLATFORM) -I$(top_srcdir)/inc/plugin -I$(top_srcdir)/inc/misc
 @USE_X11_TRUE@am__append_8 = mfw_gst_v4l_xlib.c mfw_gst_xlib.c mfw_gst_v4l_suspend.c
 @USE_X11_TRUE@am__append_9 = -lX11 -lXext 
 @USE_X11_TRUE@am__append_10 = -DUSE_X11 -DSUSPEND_SUPPORT 
@@ -300,7 +300,7 @@ libmfw_gst_v4lsink_la_CFLAGS =  \
 	$(am__append_1) $(am__append_2) $(am__append_3) \
 	$(am__append_4) $(am__append_5) $(am__append_6) \
 	$(am__append_7) $(IPU_CFLAGS) -I. \
-	-I../../../../libs/gstbufmeta $(am__append_10)
+	-I$(top_srcdir)/libs/gstbufmeta $(am__append_10)
 libmfw_gst_v4lsink_la_LIBADD = $(GST_BASE_LIBS) \
 	-lgstvideo-$(GST_MAJORMINOR) -lgstinterfaces-$(GST_MAJORMINOR) \
 	../../../../libs/libgstfsl-@GST_MAJORMINOR@.la $(am__append_9)

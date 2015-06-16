@@ -928,7 +928,6 @@ TOOLDIRS =      tools/                      \
 		tools/gplay
 
 SUBDIRS =  $(AUDIODIRS)  $(LIBSDIRS) $(BASEDIRS) $(VPUWRAPDIRS) $(WMA8ENC_DIR) $(MP3ENC_DIR) \
- $(H264DEC_DIR) $(MPEG2DEC_DIR) $(MPEG4DEC_DIR) $(WMV9MPDEC_DIR) $(WMV78DEC_DIR) \
  $(DOWNMIX_DIR) $(AMRDEC_DIR) $(IPUDIRS) $(TOOLDIRS)
 
 endif
@@ -1053,8 +1052,50 @@ TOOLDIRS =      tools/                      \
 		tools/gplay
 
 SUBDIRS =  $(AUDIODIRS)  $(LIBSDIRS) $(BASEDIRS) $(WMA8ENC_DIR) $(MP3ENC_DIR) \
- $(H264DEC_DIR) $(MPEG2DEC_DIR) $(MPEG4DEC_DIR) $(WMV9MPDEC_DIR) $(WMV78DEC_DIR) \
- $(DOWNMIX_DIR) $(AMRDEC_DIR) $(TOOLDIRS)
+           $(DOWNMIX_DIR) $(AMRDEC_DIR) $(TOOLDIRS)
+
+endif
+
+if PLATFORM_IS_MX6SX
+
+BASEDIRS = $(AIURDIRS) $(BEEPDIRS) $(V4LSINKDIRS)   \
+           src/audio/audio_pp/src      \
+           src/misc/v4l_source/src
+
+if USE_MP3_ENC
+MP3ENC_DIR =    \
+		  src/audio/mp3_enc/src
+else
+MP3ENC_DIR =
+endif
+
+if USE_DOWNMIX
+DOWNMIX_DIR =    \
+		  src/audio/down_mix/src
+else
+DOWNMIX_DIR =
+endif
+
+if USE_WMA8_ENC
+WMA8ENC_DIR =    \
+		  src/audio/wma8_enc/src
+else
+WMA8ENC_DIR =
+endif
+
+if USE_AMR_DEC
+AMRDEC_DIR =    \
+		  src/audio/amr_dec/src
+else
+AMRDEC_DIR =
+endif
+
+
+TOOLDIRS =      tools/                      \
+		tools/gplay
+
+SUBDIRS =  $(AUDIODIRS)  $(LIBSDIRS) $(BASEDIRS) $(WMA8ENC_DIR) $(MP3ENC_DIR) \
+           $(DOWNMIX_DIR) $(AMRDEC_DIR) $(TOOLDIRS)
 
 endif
 
@@ -1089,8 +1130,8 @@ noinst_HEADERS = \
     
 
 fslmmdocdir = $(docdir)/imx-mm/gstreamer-0.10
-fslmmdoc_DATA = \
-    docs/misc/platforms/EULA.txt    
+fslmmdoc_DATA =
+#    docs/misc/platforms/EULA.txt    
 
 pcverfiles = gstreamer-fsl-@GST_MAJORMINOR@.pc
 ### how to generate versioned .pc files from .pc files in this dir

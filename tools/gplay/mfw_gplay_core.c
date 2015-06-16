@@ -74,7 +74,7 @@ typedef struct
     fsl_player_s32 tv_mode;
     fsl_player_display_parameter display_parameter;
     fsl_player_video_crop video_crop;
-    fsl_player_rotation rotate_value;
+    fsl_player_s32 rotate_value;
 
     fsl_player_metadata metadata;
 
@@ -115,7 +115,7 @@ fsl_player_ret_val fsl_player_full_screen(fsl_player_handle handle);
 fsl_player_ret_val fsl_player_display_screen_mode(fsl_player_handle handle, fsl_player_s32 mode);
 fsl_player_ret_val fsl_player_resize(fsl_player_handle handle, fsl_player_display_parameter display_parameter);
 fsl_player_ret_val fsl_player_set_video_crop(fsl_player_handle handle, fsl_player_video_crop video_crop);
-fsl_player_ret_val fsl_player_rotate(fsl_player_handle handle, fsl_player_rotation rotate_value);
+fsl_player_ret_val fsl_player_rotate(fsl_player_handle handle, fsl_player_s32 rotate_value);
 
 fsl_player_ret_val fsl_player_get_property(fsl_player_handle handle, fsl_player_property_id property_id, void* pstructure);
 fsl_player_ret_val fsl_player_set_property(fsl_player_handle handle, fsl_player_property_id property_id, void* pstructure);
@@ -405,7 +405,7 @@ static gboolean my_bus_callback(GstBus *bus, GstMessage *msg, gpointer data)
             }
             g_error_free(err);
 
-
+            pproperty->abort = FSL_PLAYER_TRUE;
             fsl_player_stop(pplayer);
 
             pui_msg = fsl_player_ui_msg_new_empty(FSL_PLAYER_UI_MSG_INTERNAL_ERROR);
@@ -808,7 +808,7 @@ fsl_player_handle fsl_player_init(fsl_player_config * config)
     pproperty->display_parameter.offsety = DEFAULT_OFFSET_Y;
     pproperty->display_parameter.disp_width = DEFAULT_DISPLAY_WIDTH;
     pproperty->display_parameter.disp_height = DEFAULT_DISPLAY_HEIGHT;
-    pproperty->rotate_value = FSL_PLAYER_ROTATION_NORMAL;
+    pproperty->rotate_value = 0;
     pproperty->bfullscreen = 0;
 
     fsl_player_s32 fb = 0;
@@ -1500,7 +1500,7 @@ fsl_player_ret_val get_mfw_v4lsink(fsl_player_handle handle)
         return FSL_PLAYER_FAILURE;
     }
 
-    actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-mfw_v4l");
+    actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-imxv4l2");
     if( NULL == actual_video_sink )
     {
      //   FSL_PLAYER_PRINT("%s(): Can not find actual_video-sink\n", __FUNCTION__);
@@ -1531,7 +1531,7 @@ fsl_player_ret_val fsl_player_full_screen(fsl_player_handle handle)
         FSL_PLAYER_PRINT("%s(): Can not find auto_video_sink\n", __FUNCTION__);    
         return FSL_PLAYER_FAILURE;
     }
-    actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-mfw_v4l");
+    actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-imxv4l2");
     if( NULL == actual_video_sink )
     {
         FSL_PLAYER_PRINT("%s(): Can not find actual_video_sink\n", __FUNCTION__);    
@@ -1603,7 +1603,7 @@ fsl_player_ret_val fsl_player_resize(fsl_player_handle handle, fsl_player_displa
         FSL_PLAYER_PRINT("%s(): Can not find auto_video_sink\n", __FUNCTION__);
         return FSL_PLAYER_FAILURE;
     }
-    actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-mfw_v4l");
+    actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-imxv4l2");
     if( NULL == actual_video_sink )
     {
         FSL_PLAYER_PRINT("%s(): Can not find actual_video_sink\n", __FUNCTION__);    
@@ -1648,7 +1648,7 @@ fsl_player_ret_val fsl_player_set_video_crop(fsl_player_handle handle, fsl_playe
         FSL_PLAYER_PRINT("%s(): Can not find auto_video_sink\n", __FUNCTION__);
         return FSL_PLAYER_FAILURE;
     }
-    actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-mfw_v4l");
+    actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-imxv4l2");
     if( NULL == actual_video_sink )
     {
         FSL_PLAYER_PRINT("%s(): Can not find actual_video_sink\n", __FUNCTION__);    
@@ -1673,7 +1673,7 @@ fsl_player_ret_val fsl_player_set_video_crop(fsl_player_handle handle, fsl_playe
     return FSL_PLAYER_SUCCESS;
 }
 
-fsl_player_ret_val fsl_player_rotate(fsl_player_handle handle, fsl_player_rotation rotate_value)
+fsl_player_ret_val fsl_player_rotate(fsl_player_handle handle, fsl_player_s32 rotate_value)
 {
     fsl_player* pplayer = (fsl_player*)handle;
     fsl_player_property* pproperty = (fsl_player_property*)pplayer->property_handle;
@@ -1689,14 +1689,14 @@ fsl_player_ret_val fsl_player_rotate(fsl_player_handle handle, fsl_player_rotati
         return FSL_PLAYER_FAILURE;
     }
 
-/*    //g_object_get(auto_video_sink, "videosink-actual-sink-mfw_v4l", &actual_video_sink, NULL);
+/*    //g_object_get(auto_video_sink, "videosink-actual-sink-imxv4l2", &actual_video_sink, NULL);
     FSL_PLAYER_PRINT("The number of children in auto_video_sink is %d\n", GST_BIN_NUMCHILDREN((GstBin*)auto_video_sink));
     list = GST_BIN_CHILDREN((GstBin*)auto_video_sink);
     //list = gst_bin_get_list((GstBin*)auto_video_sink);
     pfirst = g_list_first(list);
     actual_video_sink = (GstElement*)(pfirst->data);
     FSL_PLAYER_PRINT(" CHILDREN Name:%s\n", gst_element_get_name((GstElement*)(pfirst->data)));*/
-    actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-mfw_v4l");
+    actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-imxv4l2");
     if( NULL == actual_video_sink )
     {
         FSL_PLAYER_PRINT("%s(): Can not find actual_video_sink\n", __FUNCTION__);
@@ -1710,9 +1710,8 @@ fsl_player_ret_val fsl_player_rotate(fsl_player_handle handle, fsl_player_rotati
     update_mfw_v4lsink_parameter(actual_video_sink);
 
     g_object_get(G_OBJECT(actual_video_sink), "rotate", &(rotate_value), NULL);
-    pproperty->rotate_value = rotate_value;
-
     FSL_PLAYER_PRINT("%s(): After rotate_value == %d\n", __FUNCTION__, rotate_value);
+    pproperty->rotate_value = rotate_value;
 
     g_object_unref (actual_video_sink);
     g_object_unref (auto_video_sink);
@@ -1856,13 +1855,13 @@ fsl_player_ret_val fsl_player_get_property(fsl_player_handle handle, fsl_player_
                 FSL_PLAYER_PRINT("%s(): Can not find auto_video_sink\n", __FUNCTION__);
                 return FSL_PLAYER_FAILURE;
             }
-            actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-mfw_v4l");
+            actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-imxv4l2");
             if( NULL == actual_video_sink )
             {
                 FSL_PLAYER_PRINT("%s(): Can not find actual_video_sink\n", __FUNCTION__);    
                 return FSL_PLAYER_FAILURE;
             }
-            FSL_PLAYER_PRINT("%s(): AutoVideoSink=%s : ActualVideoSink=%s\n", __FUNCTION__, GST_OBJECT_NAME(auto_video_sink), GST_OBJECT_NAME(actual_video_sink));
+
             g_object_get(G_OBJECT(actual_video_sink), "axis-left", &(pproperty->display_parameter.offsetx), NULL);
             g_object_get(G_OBJECT(actual_video_sink), "axis-top", &(pproperty->display_parameter.offsety), NULL);
             g_object_get(G_OBJECT(actual_video_sink), "disp-width", &(pproperty->display_parameter.disp_width), NULL);
@@ -1889,14 +1888,13 @@ fsl_player_ret_val fsl_player_get_property(fsl_player_handle handle, fsl_player_
                 FSL_PLAYER_PRINT("%s(): Can not find auto_video_sink\n", __FUNCTION__);
                 return FSL_PLAYER_FAILURE;
             }
-            actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-mfw_v4l");
+            actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-imxv4l2");
             if( NULL == actual_video_sink )
             {
                 FSL_PLAYER_PRINT("%s(): Can not find actual_video_sink\n", __FUNCTION__);    
                 return FSL_PLAYER_FAILURE;
             }
-            FSL_PLAYER_PRINT("%s(): AutoVideoSink=%s : ActualVideoSink=%s\n", \
-                    __FUNCTION__, GST_OBJECT_NAME(auto_video_sink), GST_OBJECT_NAME(actual_video_sink));
+
             g_object_get(G_OBJECT(actual_video_sink), "crop-left-by-pixel", \
                     &(pproperty->video_crop.left), NULL);
             g_object_get(G_OBJECT(actual_video_sink), "crop-right-by-pixel", \
@@ -1928,7 +1926,7 @@ fsl_player_ret_val fsl_player_get_property(fsl_player_handle handle, fsl_player_
                 return FSL_PLAYER_FAILURE;
             }
             if (GST_IS_BIN(auto_video_sink)){
-              actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-mfw_v4l");
+              actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-imxv4l2");
               if( NULL == actual_video_sink )
               {
               //    FSL_PLAYER_PRINT("%s(): Can not find actual_video_sink\n", __FUNCTION__);    
@@ -1970,6 +1968,34 @@ fsl_player_ret_val fsl_player_get_property(fsl_player_handle handle, fsl_player_
             gst_query_unref (query);
             break;
         }
+
+        case FSL_PLAYER_PROPERTY_ROTATION:
+        {
+            GstElement* auto_video_sink = NULL;
+            GstElement* actual_video_sink = NULL;
+	    fsl_player_s32 rotate_value = 0;
+            g_object_get(pproperty->playbin, "video-sink", &auto_video_sink, NULL);
+            if( NULL == auto_video_sink )
+            {
+                FSL_PLAYER_PRINT("%s(): Can not find auto_video_sink\n", __FUNCTION__);
+                return FSL_PLAYER_FAILURE;
+            }
+            actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-imxv4l2");
+            if( NULL == actual_video_sink )
+            {
+                FSL_PLAYER_PRINT("%s(): Can not find actual_video_sink\n", __FUNCTION__);    
+                return FSL_PLAYER_FAILURE;
+            }
+
+            g_object_get(G_OBJECT(actual_video_sink), "rotate", &(rotate_value), NULL);
+            
+            g_object_unref (actual_video_sink);
+            g_object_unref (auto_video_sink);
+
+            *((fsl_player_s32*)pstructure) = rotate_value;
+	    break;
+	}
+
         default:
         {
             ret_val = FSL_PLAYER_ERROR_NOT_SUPPORT;
@@ -2050,7 +2076,7 @@ fsl_player_ret_val fsl_player_set_property(fsl_player_handle handle, fsl_player_
                 FSL_PLAYER_PRINT("%s(): Can not find auto_video_sink\n", __FUNCTION__);
                 return FSL_PLAYER_FAILURE;
             }
-            actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-mfw_v4l");
+            actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-imxv4l2");
             if( NULL == actual_video_sink )
             {
                 FSL_PLAYER_PRINT("%s(): Can not find actual_video_sink\n", __FUNCTION__);    
@@ -2078,7 +2104,7 @@ fsl_player_ret_val fsl_player_set_property(fsl_player_handle handle, fsl_player_
                 FSL_PLAYER_PRINT("%s(): Can not find auto_video_sink\n", __FUNCTION__);
                 return FSL_PLAYER_FAILURE;
             }
-            actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-mfw_v4l");
+            actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-imxv4l2");
             if( NULL == actual_video_sink )
             {
                 FSL_PLAYER_PRINT("%s(): Can not find actual_video_sink\n", __FUNCTION__);    

@@ -68,7 +68,6 @@
 #define AIURDEMUX_FRAME_N_DEFAULT 30
 #define AIURDEMUX_FRAME_D_DEFAULT 1
 
-#define MERGE_H264_CODEC_DATA
 #define AIUR_ENV "aiurenv"
 
 //#define AIUR_SUB_TEXT_SUPPORT
@@ -257,7 +256,6 @@ struct _AiurDemuxStream
   gboolean valid;
 
   gboolean send_codec_data;
-  gboolean merge_codec_data;
   gboolean block;
   gint32 preroll_size;
 
@@ -396,10 +394,10 @@ static GstsutilsOptionEntry g_aiurdemux_option_table[] = {
 static AiurDemuxConfigEntry aiur_config_table[] = {
   {"aiur_import_index", TYPE_BOOLEAN, G_STRUCT_OFFSET (AiurDemuxConfig,
             import_index),
-      "true"},
+      "false"},
   {"aiur_export_index", TYPE_BOOLEAN, G_STRUCT_OFFSET (AiurDemuxConfig,
             export_index),
-      "true"},
+      "false"},
   {"aiur_index_dir", TYPE_STRING, G_STRUCT_OFFSET (AiurDemuxConfig, index_file_prefix), NULL},  /* default $HOME/.aiur */
 
   {"aiur_retimestamp_delay_ms", TYPE_INT, G_STRUCT_OFFSET (AiurDemuxConfig, retimestamp_delay_ms), "500"},      /* 500ms */
@@ -1360,12 +1358,6 @@ aiurdemux_send_stream_newsegment (GstAiurDemux * demux,
             GST_FORMAT_TIME, (gint64) 0, stream->time_position, (gint64) 0));
   }
   stream->new_segment = FALSE;
-#ifdef MERGE_H264_CODEC_DATA
-  if(stream->type == MEDIA_VIDEO && stream->codec_type == VIDEO_H264){
-    stream->merge_codec_data = TRUE;
-    GST_DEBUG("new segment, merge codec data into buffer");
-  }
-#endif
   demux->new_segment_mask &= (~(stream->mask));
 
 }
@@ -2292,6 +2284,7 @@ aiurdemux_loop_state_init (GstAiurDemux * demux)
   GstBuffer *buffer;
   GstFlowReturn ret = GST_FLOW_ERROR;
   int32 core_ret = 0;
+  uint32 flag;
 
 
   AiurCoreInterface *inf = demux->core_interface;
@@ -2354,9 +2347,22 @@ aiurdemux_loop_state_init (GstAiurDemux * demux)
     demux->clip_info.auto_retimestamp = FALSE;
   }
 
-  CORE_API (inf, createParser, goto fail, core_ret,
-      (bool) (demux->clip_info.live), file_cbks, mem_cbks, buf_cbks,
-      (void *) demux, &handle);
+  if(inf->createParser2){
+    flag = FLAG_H264_NO_CONVERT;
+    if(demux->clip_info.live){
+        flag |= FILE_FLAG_NON_SEEKABLE;
+        flag |= FILE_FLAG_READ_IN_SEQUENCE;
+    }
+    CORE_API (inf, createParser2, goto fail, core_ret,
+        flag, file_cbks, mem_cbks, buf_cbks,
+        (void *) demux, &handle);
+    GST_LOG_OBJECT(demux,"aiurdemux_loop_state_init create using createParser2 flag=%x",flag);
+
+  }else{
+      CORE_API (inf, createParser, goto fail, core_ret,
+          (bool) (demux->clip_info.live), file_cbks, mem_cbks, buf_cbks,
+          (void *) demux, &handle);
+  }
 
   if (CORE_API_FAILED (core_ret)) {
     goto fail;
@@ -2730,12 +2736,12 @@ aiurdemux_parse_video (GstAiurDemux * demux, AiurDemuxStream * stream,
       codec = "H.263";
       break;
     case VIDEO_H264:
-      mime = "video/x-h264, parsed = (boolean)true";
+      if(stream->codec_data.length > 0){
+        mime = "video/x-h264, parsed = (boolean)true, alignment=(string)au, stream-format=(string)avc";
+      }else{
+        mime = "video/x-h264, parsed = (boolean)true, alignment=(string)au, stream-format=(string)byte-stream";
+      }
       codec = "H.264/AVC";
-#ifdef MERGE_H264_CODEC_DATA
-      stream->send_codec_data = FALSE;
-      stream->merge_codec_data = FALSE;
-#endif
       break;
     case VIDEO_MPEG2:
       //mime = "video/mp2v";
@@ -3013,6 +3019,10 @@ aiurdemux_parse_audio (GstAiurDemux * demux, AiurDemuxStream * stream,
         case AUDIO_WMA3:
           mime = "audio/x-wma, wmaversion=(int)3";
           codec = "WMA9";
+          break;
+        case AUDIO_WMALL:
+          mime = "audio/x-wma, wmaversion=(int)4";
+          codec = "WMA9 Lossless";
           break;
         default:
           goto fail;
@@ -4347,32 +4357,6 @@ aiurdemux_loop_state_movie (GstAiurDemux * demux)
         //}
 
         if (stream->buffer) {
-#ifdef MERGE_H264_CODEC_DATA
-            if((stream->type == MEDIA_VIDEO)
-                && (stream->codec_type == VIDEO_H264)
-                && (stream->send_codec_data == FALSE)
-                && (stream->merge_codec_data == TRUE)
-                && (stream->codec_data.length)){
-                GstBuffer *newbuf =gst_buffer_new_and_alloc(GST_BUFFER_SIZE (stream->buffer)
-                    + stream->codec_data.length);
-                memcpy (GST_BUFFER_DATA (newbuf),
-                    stream->codec_data.codec_data, stream->codec_data.length);
-                memcpy (GST_BUFFER_DATA (newbuf)+stream->codec_data.length,
-                    GST_BUFFER_DATA (stream->buffer), GST_BUFFER_SIZE (stream->buffer));
-                GST_BUFFER_SIZE(newbuf) = GST_BUFFER_SIZE (stream->buffer) + stream->codec_data.length;
-                GST_BUFFER_FLAGS(newbuf) = GST_BUFFER_FLAGS(stream->buffer);
-                GST_BUFFER_TIMESTAMP(newbuf) = GST_BUFFER_TIMESTAMP(stream->buffer);
-                GST_BUFFER_DURATION(newbuf) = GST_BUFFER_DURATION(stream->buffer);
-                GST_BUFFER_OFFSET(newbuf) = GST_BUFFER_OFFSET(stream->buffer);
-                GST_BUFFER_OFFSET_END(newbuf) = GST_BUFFER_OFFSET_END(stream->buffer);
-                gst_buffer_unref (stream->buffer);
-                MM_UNREGRES (stream->buffer, RES_GSTBUFFER);
-                stream->buffer = newbuf;
-                stream->merge_codec_data = FALSE;
-                MM_REGRES (stream->buffer, RES_GSTBUFFER);
-                GST_DEBUG_OBJECT(demux,"merge H264 codec data,size=%d, len=%d",GST_BUFFER_SIZE(stream->buffer),stream->codec_data.length);
-          }
-#endif
           gst_buffer_set_caps (stream->buffer, GST_PAD_CAPS (stream->pad));
           if (demux->interleave_queue_size) {
             stream->buf_queue_size += GST_BUFFER_SIZE (stream->buffer);

@@ -861,6 +861,15 @@ mfw_gst_mpeg4asp_decoder_chain(GstPad * pad, GstBuffer * buffer)
     	   the requested memory block (chunks) by setting the pointers of asMemBlks 
     	   in sMpeg4DecObject.sMemInfo structure to the required size, type & 
     	   aligned memory. */
+       
+        if ((mpeg4asp_dec->width<64) || (mpeg4asp_dec->height<64)) {
+           GST_ERROR("video width / height is not correct\n");
+            GST_ELEMENT_ERROR (mpeg4asp_dec, STREAM, WRONG_TYPE,
+              ("MPE4 decoder query init failed"), (NULL));          
+  
+           mfw_gst_mpeg4asp_decoder_cleanup(mpeg4asp_dec);
+           return GST_FLOW_ERROR; 
+        }
         if(!(mpeg4asp_dec->control_flag))	
     	    eDecRetVal = eMPEG4DQueryInitInfo(psMpeg4DecInitInfo,
     				     frame_buffer, mpeg4asp_dec->sizebuffer, &mpeg4asp_dec->Mpeg4Caps);
@@ -880,6 +889,8 @@ mfw_gst_mpeg4asp_decoder_chain(GstPad * pad, GstBuffer * buffer)
 
     	    /*! Freeing Memory allocated by the Application */
     	    mfw_gst_mpeg4asp_decoder_cleanup(mpeg4asp_dec);
+            GST_ELEMENT_ERROR (mpeg4asp_dec, STREAM, WRONG_TYPE,
+              ("MPE4 decoder query init failed"), (NULL));          
     	    return GST_FLOW_ERROR;
     	}
 
@@ -1206,7 +1217,8 @@ mfw_gst_mpeg4asp_decoder_sink_event(GstPad * pad, GstEvent * event)
 
         GST_INFO ("got EOS");
         mpeg4asp_dec->eos = 1;
-
+        if(!mpeg4asp_dec->init_done)
+            break;
         /* Flush the frames reserved by decoder */
         eMPEG4DFlushFrame(mpeg4asp_dec->Mpeg4Handle);
         eDecRetVal = eMPEG4DGetOutputFrame(mpeg4asp_dec->Mpeg4Handle, &psOutBuffer); 

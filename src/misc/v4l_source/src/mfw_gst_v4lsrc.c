@@ -1794,7 +1794,7 @@ mfw_gst_v4lsrc_base_init (gpointer g_class)
       gst_pad_template_new ("src", GST_PAD_SRC, GST_PAD_ALWAYS,
           gst_caps_new_any ()));
 
-  GST_DEBUG_CATEGORY_INIT (mfw_gst_v4lsrc_debug, "mfw_v4lsrc", 0,
+  GST_DEBUG_CATEGORY_INIT (mfw_gst_v4lsrc_debug, "imxv4l2src", 0,
       "V4L2 video src element");
 
   return;
@@ -1822,7 +1822,7 @@ IMPORTANT NOTES:     None
 static gboolean
 plugin_init (GstPlugin * plugin)
 {
-  if (!gst_element_register (plugin, "mfw_v4lsrc", GST_RANK_PRIMARY,
+  if (!gst_element_register (plugin, "imxv4l2src", GST_RANK_PRIMARY,
           MFW_GST_TYPE_V4LSRC))
     return FALSE;
 

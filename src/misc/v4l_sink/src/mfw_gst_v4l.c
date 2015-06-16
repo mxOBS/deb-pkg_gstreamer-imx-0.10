@@ -823,7 +823,12 @@ mfw_gst_v4l2_set_rotation (MFW_GST_V4LSINK_INFO_T * v4l_info)
   }
 
   /* Set the rotation */
-  ctrl.id = V4L2_CID_ROTATE;
+  if (IS_PXP (v4l_info->chipcode)) {
+      ctrl.id = V4L2_CID_PRIVATE_BASE;
+  } else {
+      ctrl.id = V4L2_CID_ROTATE;
+  }
+
   ctrl.value = v4l_info->rotate;
   if (ioctl (v4l_info->v4l_id, VIDIOC_S_CTRL, &ctrl) < 0) {
     GST_ERROR ("set ctrl failed");
@@ -1181,27 +1186,27 @@ mfw_gst_v4l2_set_fmt (MFW_GST_V4LSINK_INFO_T * v4l_info,
 
   struct v4l2_mxc_offset off;
 
+  /* set the input cropping parameters */
+  in_width = width;
+  in_height = height;
+  memset (&fmt, 0, sizeof (fmt));
+  fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+
+  if (v4l_info->crop_left + v4l_info->crop_right > in_width \
+          || v4l_info->crop_top + v4l_info->crop_bottom > in_height) {
+      GST_WARNING("video crop error.\n");
+      return retval;
+  }
+
+  cr_left = v4l_info->cr_left_bypixel + v4l_info->crop_left;
+  cr_top = v4l_info->cr_top_bypixel + v4l_info->crop_top;
+  cr_right = v4l_info->cr_right_bypixel + v4l_info->crop_right;
+  cr_bottom = v4l_info->cr_bottom_bypixel + v4l_info->crop_bottom;
+  in_width -= v4l_info->crop_left + v4l_info->crop_right;
+  in_height -= v4l_info->crop_top + v4l_info->crop_bottom;
+
   /*No need to set input fmt and req buffer again when change para on-the-fly */
   if (v4l_info->init == FALSE) {
-    /* set the input cropping parameters */
-    in_width = width;
-    in_height = height;
-    memset (&fmt, 0, sizeof (fmt));
-    fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
-
-    if (v4l_info->crop_left + v4l_info->crop_right > in_width \
-            || v4l_info->crop_top + v4l_info->crop_bottom > in_height) {
-        GST_WARNING("video crop error.\n");
-        return retval;
-    }
-
-    cr_left = v4l_info->cr_left_bypixel + v4l_info->crop_left;
-    cr_top = v4l_info->cr_top_bypixel + v4l_info->crop_top;
-    cr_right = v4l_info->cr_right_bypixel + v4l_info->crop_right;
-    cr_bottom = v4l_info->cr_bottom_bypixel + v4l_info->crop_bottom;
-    in_width -= v4l_info->crop_left + v4l_info->crop_right;
-    in_height -= v4l_info->crop_top + v4l_info->crop_bottom;
-
 //#if ((!defined (_MX233)) && (!defined (_MX28)) && (!defined (_MX50)))
     if (!(IS_PXP (v4l_info->chipcode))) {
       fmt.fmt.pix.width = in_width;
@@ -1313,10 +1318,44 @@ mfw_gst_v4l2_set_fmt (MFW_GST_V4LSINK_INFO_T * v4l_info,
         return FALSE;
       } else {
         GST_ERROR ("Set frame sucessfully");
+        v4l_info->previCrop.left = cr_left;
+        v4l_info->previCrop.top = cr_top;
+        v4l_info->previCrop.width = in_width;
+        v4l_info->previCrop.height = in_height;
+        GST_DEBUG ("In Crop %d:%d:%d:%d", cr_left, cr_top,in_width,in_height);
       }
     }
 //#endif
+  } else {
+    if (IS_PXP (v4l_info->chipcode)) {
+      struct v4l2_rect icrop;
+      icrop.left = cr_left;
+      icrop.top = cr_top;
+      icrop.width = in_width;
+      icrop.height = in_height;
+      if (!memcmp (&icrop, &v4l_info->previCrop, sizeof (struct v4l2_rect))) {
+          GST_INFO ("Same video input crop.\n");
+      } else {
+        fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_OVERLAY;
+        fmt.fmt.win.w.left =  icrop.left;
+        fmt.fmt.win.w.top = icrop.top;
+        fmt.fmt.win.w.width = icrop.width;
+        fmt.fmt.win.w.height = icrop.height;
+        fmt.fmt.win.global_alpha = 0;
+        fmt.fmt.win.chromakey = 0;
+
+        GST_DEBUG ("In Crop %d:%d:%d:%d", cr_left, cr_top,in_width,in_height);
+        if (ioctl (v4l_info->v4l_id, VIDIOC_S_FMT, &fmt) < 0) {
+          perror ("VIDIOC_S_FMT output overlay");
+          return FALSE;
+        } else {
+          GST_ERROR ("Set frame sucessfully");
+          memcpy (&v4l_info->previCrop, &icrop, sizeof (struct v4l2_rect));
+        }
+      }
+    }
   }
+
 err0:
   return retval;
 
@@ -1408,8 +1447,8 @@ mfw_gst_v4l2_set_crop (MFW_GST_V4LSINK_INFO_T * v4l_info,
 
   if (!(v4l_info->stretch)) {
 
-    if (v4l_info->rotate == IPU_ROTATE_90_LEFT
-        || v4l_info->rotate == IPU_ROTATE_90_RIGHT) {
+    if (v4l_info->rotate == 90
+        || v4l_info->rotate == 270) {
       video_width = v4l_info->height;
       video_height = v4l_info->width;
     } else {
@@ -1469,9 +1508,11 @@ mfw_gst_v4l2_set_crop (MFW_GST_V4LSINK_INFO_T * v4l_info,
 
   }
 
-  /* FixME */
-  if (v4l_info->chipcode != CC_MX6Q)
-    mfw_gst_v4l2_streamoff (v4l_info);
+  if (!(IS_PXP (v4l_info->chipcode))) {
+     /* FixME */
+    if (v4l_info->chipcode != CC_MX6Q)
+      mfw_gst_v4l2_streamoff (v4l_info);
+  }
 
   if (ioctl (v4l_info->v4l_id, VIDIOC_S_CROP, crop) < 0) {
     GST_ERROR ("set crop failed");
@@ -1497,7 +1538,11 @@ mfw_gst_v4l2_set_crop (MFW_GST_V4LSINK_INFO_T * v4l_info,
         ("set v4l display crop sucessfully\n"));
   }
 
-  newcrop.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+  if (!(IS_PXP (v4l_info->chipcode)))
+      newcrop.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+  else
+      newcrop.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_OVERLAY;
+
   if (ioctl( v4l_info->v4l_id, VIDIOC_G_CROP, &newcrop) < 0) {
       GST_WARNING("Get crop failed");
       goto err0;
@@ -1642,6 +1687,7 @@ gboolean
 mfw_gst_v4l2_set_field (MFW_GST_V4LSINK_INFO_T * v4l_info, GstCaps * caps)
 {
   struct v4l2_format fmt;
+  struct v4l2_rect icrop;
   gint err;
   GstStructure *s;
   gint field;
@@ -1696,6 +1742,7 @@ mfw_gst_v4l2_set_field (MFW_GST_V4LSINK_INFO_T * v4l_info, GstCaps * caps)
         }
 #endif
         /* For interlace feature */
+        memset(&fmt, 0, sizeof(fmt));
         fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
         err = ioctl (v4l_info->v4l_id, VIDIOC_G_FMT, &fmt);
         if (err < 0) {
@@ -1707,6 +1754,9 @@ mfw_gst_v4l2_set_field (MFW_GST_V4LSINK_INFO_T * v4l_info, GstCaps * caps)
           fmt.fmt.pix.field = V4L2_FIELD_ALTERNATE;
         else
           fmt.fmt.pix.field = v4l_info->field;
+
+        memcpy (&icrop, &v4l_info->previCrop, sizeof (struct v4l2_rect));
+        fmt.fmt.pix.priv = (unsigned int) &icrop;
         fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
 
         GST_INFO("Set deinterlace motion %d field %d", v4l_info->motion, v4l_info->field);

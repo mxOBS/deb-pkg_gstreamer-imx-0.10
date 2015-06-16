@@ -284,9 +284,9 @@ plugin_LTLIBRARIES = libmfw_gst_isink.la
 libmfw_gst_isink_la_SOURCES = mfw_gst_isink.c $(am__append_1)
 libmfw_gst_isink_la_CFLAGS = -O2 $(GST_BASE_CFLAGS) -fPIC \
 	-fno-omit-frame-pointer $(IPU_CFLAGS) -D_$(PLATFORM) \
-	-I../../../../inc/plugin -I../../../../inc/common \
-	-I../../../../libs/vss -I../../../../libs/gstbufmeta \
-	-I../../../../libs/hbuf_alloc -I$(FBHEADER_PATH) -I. \
+	-I$(top_srcdir)/inc/plugin -I$(top_srcdir)/inc/common \
+	-I$(top_srcdir)/libs/vss -I$(top_srcdir)/libs/gstbufmeta \
+	-I$(top_srcdir)/libs/hbuf_alloc -I$(FBHEADER_PATH) -I. \
 	-I/usr/src/linux-headers-2.6.35-1000-linaro-imx5/include \
 	$(am__append_3)
 libmfw_gst_isink_la_LIBADD = $(GST_BASE_LIBS) \

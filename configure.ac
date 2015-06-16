@@ -3,10 +3,10 @@ AC_PREREQ(2.59)
 dnl initialize autoconf
 dnl releases only do -Wall, git and prerelease does -Werror too
 dnl use a three digit version number for releases, and four for git/prerelease
-AC_INIT(GStreamer i.MX Plug-ins, 3.0.11, http://www.freescale.com)
+AC_INIT(GStreamer i.MX Plug-ins, 4.0.3, http://www.freescale.com)
 
 dnl initialize automake
-AM_INIT_AUTOMAKE(gst-fsl-plugins, 3.0.11)
+AM_INIT_AUTOMAKE(gst-fsl-plugins, 4.0.3)
 
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -15,7 +15,7 @@ AC_SUBST(ACLOCAL_AMFLAGS, "-I m4")
 AC_DEFUN([FIND_PARSER_SONAME],
 [
     AC_MSG_CHECKING([for lib_$1_parser_$2_elinux.3.0.so soname])
-    path=`$PKG_CONFIG --variable=libdir libfslparser`
+    path=`$PKG_CONFIG --variable=libdir libfslparser | sed -e 's|.*/imx-mm/|/usr/lib/imx-mm/|'`
     SONAME=$( $CC -print-file-name=$PKG_CONFIG_SYSROOT_DIR$path/lib_$1_parser_$2_elinux.so | \
 	    while read output; do objdump -p $output | \
 	    grep "SONAME" | \
@@ -34,7 +34,7 @@ AC_DEFUN([FIND_PARSER_SONAME],
 AC_DEFUN([FIND_ACODEC_SONAME],
 [
     AC_MSG_CHECKING([for lib_$1_wrap_$2_elinux.so soname])
-    path=`$PKG_CONFIG --variable=libdir libfslaudiocodec`
+    path=`$PKG_CONFIG --variable=libdir libfslaudiocodec | sed -e 's|.*/imx-mm/|/usr/lib/imx-mm/|'`
     SONAME=$( $CC -print-file-name=$PKG_CONFIG_SYSROOT_DIR$path/wrap/lib_$1_wrap_$2_elinux.so | \
 	    while read output; do objdump -p $output | \
 	    grep "SONAME" | \
@@ -92,11 +92,11 @@ dnl check target type
 if test "$PLATFORM" = "MX28" || test "$PLATFORM" = "MX233" || test "$PLATFORM" = "MX25" || test "$PLATFORM" = "MX27" || \
    test "$PLATFORM" = "MX31" || test "$PLATFORM" = "MX35" || test "$PLATFORM" = "MX37" \
    || test "$PLATFORM" = "MX51" || test "$PLATFORM" = "MX53" || test "$PLATFORM" = "MX50" || test "$PLATFORM" = "MX5X" \
-   || test "$PLATFORM" = "MX6" || test "$PLATFORM" = "MX6SL" ;
+   || test "$PLATFORM" = "MX6" || test "$PLATFORM" = "MX6SL" || test "$PLATFORM" = "MX6SX" ;
 then
   AC_MSG_NOTICE(build for $PLATFORM)
 else
-  AC_MSG_ERROR(No target platform specified! Use ./configure PLATFORM=(MX28/MX233/MX25/MX27/MX31/MX35/MX37/MX51/MX53/MX50/MX5X/MX6/MX6SL) to retry)
+  AC_MSG_ERROR(No target platform specified! Use ./configure PLATFORM=(MX28/MX233/MX25/MX27/MX31/MX35/MX37/MX51/MX53/MX50/MX5X/MX6/MX6SL/MX6SX) to retry)
 fi
 
 AC_SUBST(PLATFORM)
@@ -184,7 +184,6 @@ AC_SUBST(FSL_MM_CORE_CFLAGS)
 FSL_MM_CORE_LIBS=`$PKG_CONFIG --libs libfslaudiocodec 2>/dev/null`
 FSL_MM_CORE_LIBS+=`$PKG_CONFIG --libs libfslvideocodec 2>/dev/null`
 FSL_MM_CORE_LIBS+=`$PKG_CONFIG --libs libfslparser 2>/dev/null`
-FSL_MM_CORE_LIBS+=`$PKG_CONFIG --libs libfslvpuwrap 2>/dev/null`
 AC_SUBST(FSL_MM_CORE_LIBS)
 
 EXTRAPLATFORMCFLAGS="-DARM -D_GNUC_"
@@ -249,9 +248,10 @@ AM_CONDITIONAL(PLATFORM_IS_MX51, test "x$PLATFORM" = "xMX51")
 AM_CONDITIONAL(PLATFORM_IS_MX53, test "x$PLATFORM" = "xMX53")
 AM_CONDITIONAL(PLATFORM_IS_MX50, test "x$PLATFORM" = "xMX50")
 
-AM_CONDITIONAL(PLATFORM_IS_MX6X, test "x$PLATFORM" = "xMX6" || test "x$PLATFORM" = "xMX6" || test "x$PLATFORM" = "xMX6SL")
+AM_CONDITIONAL(PLATFORM_IS_MX6X, test "x$PLATFORM" = "xMX6" || test "x$PLATFORM" = "xMX6" || test "x$PLATFORM" = "xMX6SL" || test "x$PLATFORM" = "xMX6SX")
 AM_CONDITIONAL(PLATFORM_IS_MX6, test "x$PLATFORM" = "xMX6")
 AM_CONDITIONAL(PLATFORM_IS_MX6SL, test "x$PLATFORM" = "xMX6SL")
+AM_CONDITIONAL(PLATFORM_IS_MX6SX, test "x$PLATFORM" = "xMX6SX")
 
 
 AM_CONDITIONAL(LTIBBUILD, test "x$BUILDER" = "xLTIB")

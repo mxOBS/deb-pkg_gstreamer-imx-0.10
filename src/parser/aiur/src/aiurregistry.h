@@ -49,6 +49,7 @@ typedef struct
   FslParserVersionInfo getVersionInfo;
   FslCreateParser createParser;
   FslDeleteParser deleteParser;
+  FslCreateParser2 createParser2;
 
   /* index export/import */
   FslParserInitializeIndex initializeIndex;

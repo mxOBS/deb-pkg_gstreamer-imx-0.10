@@ -87,7 +87,7 @@ GST_STATIC_PAD_TEMPLATE ("wma8enc_src",
             GST_PAD_SRC,
             GST_PAD_ALWAYS,
             GST_STATIC_CAPS (
-                "audio/x-wma"));
+                "video/x-ms-asf"));
 
 typedef guint8 U8;
 

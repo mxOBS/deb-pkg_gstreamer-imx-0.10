@@ -280,8 +280,8 @@ wma10d_arm9_SONAME = @wma10d_arm9_SONAME@
 plugin_LTLIBRARIES = libmfw_gst_ipu_csc.la 
 libmfw_gst_ipu_csc_la_SOURCES = mfw_gst_ipu_csc.c 
 libmfw_gst_ipu_csc_la_CFLAGS = -O2 $(GST_BASE_CFLAGS) -fPIC \
-	-fno-omit-frame-pointer -I../../../../inc/plugin \
-	-I../../../../ $(am__append_1) $(IPU_CFLAGS) \
+	-fno-omit-frame-pointer -I$(top_srcdir)/inc/plugin \
+	-I$(top_srcdir)/ $(am__append_1) $(IPU_CFLAGS) \
 	-I$(FBHEADER_PATH)
 libmfw_gst_ipu_csc_la_LIBADD = $(GST_BASE_LIBS) \
 	$(GST_PLUGINS_BASE_LIBS) $(GST_LIBS) $(IPU_LIBS) \

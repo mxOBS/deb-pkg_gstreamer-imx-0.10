@@ -295,8 +295,8 @@ plugin_LTLIBRARIES = libmfw_gst_aiur_demux.la
 libmfw_gst_aiur_demux_la_SOURCES = aiur.c aiurregistry.c aiurstreamcache.c aiuridxtab.c aiurdemux.c aiurtypefind.c
 libmfw_gst_aiur_demux_la_CFLAGS = $(GST_BASE_CFLAGS) -O2 \
 	-fno-omit-frame-pointer -DFSL_AVI_DRM_SUPPORT \
-	$(FSL_MM_CORE_CFLAGS) -I../../../../inc/plugin \
-	-I../../../../inc/core_lib/parser -I../../../../libs \
+	$(FSL_MM_CORE_CFLAGS) -I$(top_srcdir)/inc/plugin \
+	-I$(top_srcdir)/inc/core_lib/parser -I$(top_srcdir)/libs \
 	$(am__append_1) $(am__append_2)
 libmfw_gst_aiur_demux_la_LIBADD = $(GST_BASE_LIBS) $(GST_PLUGINS_BASE_LIBS) $(GST_LIBS)  -lgstriff-@GST_MAJORMINOR@ -lgsttag-@GST_MAJORMINOR@ -ldl ../../../../libs/libgstfsl-@GST_MAJORMINOR@.la
 libmfw_gst_aiur_demux_la_CPPFLAGS = $(GST_LIBS_CPPFLAGS) 

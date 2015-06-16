@@ -50,6 +50,8 @@ typedef struct{
     fsl_player_bool handle_buffering;
     fsl_player_bool handle_redirect;
     fsl_player_bool enable_visual;
+    fsl_player_bool no_auto_next;
+    fsl_player_u8 cur_name[256];
     
     int play_times;
 
@@ -172,7 +174,7 @@ fsl_player_ret_val playlist_previous(fsl_player_handle handle, options* opt)
     fsl_player_drm_format drm_format;
     PlayItem * current = opt->current;
     PlayItem * next = getPrevItem(current);
-
+    
     if(next)
     {
         opt->current = next;
@@ -338,6 +340,11 @@ fsl_player_s32 parse_options(fsl_player_config* pconfig, options * opt, fsl_play
                 if ((strcmp(argv[i], "--handle-redirect")==0)){
                     opt->handle_redirect= 1;
                     pconfig->features &= (~ GPLAYCORE_FEATURE_AUTO_REDIRECT_URI);
+                    continue;
+                }
+
+                if ((strcmp(argv[i], "--noautonext") == 0)) {
+                    opt->no_auto_next = FSL_PLAYER_TRUE;
                     continue;
                 }
 
@@ -560,8 +567,10 @@ fsl_player_s32 msg_thread_fun(fsl_player_handle handle)
                     // Wait until eos message has been processed completely. Fix the bug of play/stop hang problem.
                     pplayer->klass->post_eos_semaphore(handle);
                     //printf("\nmsg_thread_fun:=======================================================\n");
-                    if (playlist_next(handle, opt)==NULL){
-                      player_exit(handle);
+                    if (!opt->no_auto_next) {
+                        if (playlist_next(handle, opt)==NULL){
+                            player_exit(handle);
+                        }
                     }
                     fsl_player_ui_msg_free(msg);
                     break;
@@ -577,7 +586,9 @@ fsl_player_s32 msg_thread_fun(fsl_player_handle handle)
                 {
                     printf("FSL_PLAYER_UI_MSG_INTERNAL_ERROR: internal error message received.\n");
                     fsl_player_ui_msg_free(msg);
-                    player_exit(handle);
+                    if (!opt->no_auto_next) {
+                        player_exit(handle);
+                    }
                     return 0;
                 }
                 case FSL_PLAYER_UI_MSG_BUFFERING:
@@ -692,12 +703,12 @@ static void signal_handler(int sig)
     if(g_pplayer != NULL){
         gbexit_main = FSL_PLAYER_TRUE;
         g_pplayer->klass->send_message_exit(g_pplayer);
-        }
+    }
 }
 
 int main(int argc,char *argv[])
 {
-    fsl_player_s8 sCommand[128];
+    fsl_player_s8 sCommand[256];
     fsl_player_s8 uri_buffer[500];
     fsl_player_thread_t display_thread;
     fsl_player_thread_t msg_thread;
@@ -756,13 +767,13 @@ int main(int argc,char *argv[])
     player_handle = fsl_player_init(&config);
     if( NULL == player_handle )
     {
-        PRINT("Failed: player_handle == NULL returned by fsl_player_init().\n");
+        PRINT("Failed: fsl_player_init().\n");
         goto bail;
     }
 
     pplayer = (fsl_player*)player_handle;
     g_pplayer = pplayer;
-
+	
     if (opt->info_interval_in_sec){
         FSL_PLAYER_CREATE_THREAD( &display_thread, display_thread_fun, player_handle );
     }
@@ -773,6 +784,7 @@ int main(int argc,char *argv[])
     pplayer->klass->play(pplayer);
 
     // Print the help menu to let user know the operation.
+    fflush(stdout);
     print_help(player_handle);
 
     kb_set_raw_term(STDIN_FILENO);
@@ -781,12 +793,12 @@ int main(int argc,char *argv[])
     {
         sCommand[0] = ' ';
         errno = 0;
-          scanf("%s", sCommand);
-          //read(STDIN_FILENO, sCommand, 1);
-          if( EINTR == errno )
-          {
-            //printf("Timed out: EINTR == %d", errno);
-          }
+        scanf("%s", sCommand);
+        //read(STDIN_FILENO, sCommand, 1);
+        if( EINTR == errno )
+        {
+          //printf("Timed out: EINTR == %d", errno);
+        }
         switch( sCommand[0] )
         {
             case 'h': // display the operation Help.
@@ -908,11 +920,12 @@ int main(int argc,char *argv[])
             case '>': // Play next file
                 printf("next\n");
                 if (playlist_next(pplayer, opt)==NULL){
-                    player_exit(pplayer);
+                    gbexit_main = FSL_PLAYER_TRUE;                    
+                    pplayer->klass->send_message_exit(pplayer);
                 }
                 break;
 
-            case '<': // Play previous file
+            case '<': // Play previous file  
                 printf("previous\n");
                 playlist_previous(pplayer, opt);
                 break;
@@ -1109,14 +1122,14 @@ int main(int argc,char *argv[])
             }
             case 't': // Rotate 90 degree every time
             {
-                fsl_player_rotation rotate_value;
+                fsl_player_s32 rotate_value;
                 PRINT("Set rotation between 0, 90, 180, 270: ");
                 kb_restore_term(STDIN_FILENO);
                 gbdisplay = FSL_PLAYER_FALSE;
                 scanf("%s",sCommand);
                 gbdisplay = FSL_PLAYER_TRUE;
                 kb_set_raw_term(STDIN_FILENO);
-                rotate_value = (fsl_player_rotation)atoi(sCommand);
+                rotate_value = (fsl_player_s32)atoi(sCommand);
                 if( (fsl_player_s32)rotate_value != 0  && (fsl_player_s32)rotate_value != 90 &&  (fsl_player_s32)rotate_value != 180 
                 &&   (fsl_player_s32)rotate_value != 270 )
                 {
@@ -1192,11 +1205,145 @@ int main(int argc,char *argv[])
                 g_print ("pause failed.\n");
               break;
             }
+	    
+            case 'q': // Query information
+            {
+                PRINT("Input query type[v:has video?, e:seekable?, s:state, p:position, u:duration, z:size, k:crop, t:rotation, c:play rate]:\n");
+
+                kb_restore_term(STDIN_FILENO);
+                gbdisplay = FSL_PLAYER_FALSE;
+                scanf("%s",sCommand);
+                gbdisplay = FSL_PLAYER_TRUE;
+                kb_set_raw_term(STDIN_FILENO);
+
+                switch(sCommand[0])
+                {
+                    case 'v':
+                    {
+                        fsl_player_s32 video_num = 0;
+                        pplayer->klass->get_property(pplayer, FSL_PLAYER_PROPERTY_TOTAL_VIDEO_NO, (void*)(&video_num));
+                        printf("Number of Video Streams : %d\n", video_num);
+                        break;
+                    }
+                    case 'e':
+                    {
+                        fsl_player_bool seekable = FSL_PLAYER_FALSE;
+                        pplayer->klass->get_property(pplayer, FSL_PLAYER_PROPERTY_SEEKABLE, (void*)(&seekable));
+                        printf("Seekable : %s\n", seekable ? "Yes" : "No");
+                        break;
+                    }
+                    case 's':
+                    {
+                        fsl_player_state player_state = FSL_PLAYER_STATUS_STOPPED;
+                        pplayer->klass->get_property(pplayer, FSL_PLAYER_PROPERTY_PLAYER_STATE, (void*)(&player_state));
+                        switch (player_state)
+                        {
+                            case FSL_PLAYER_STATUS_STOPPED:
+                                printf("Current State : Stopped\n");
+                                break;
+                            case FSL_PLAYER_STATUS_PAUSED:
+                                printf("Current State : Paused\n");
+                                break;
+                            case FSL_PLAYER_STATUS_PLAYING:
+                                printf("Current State : Playing\n");
+                                break;
+                            case FSL_PLAYER_STATUS_FASTFORWARD:
+                                printf("Current State : Fast Forward\n");
+                                break;
+                            case FSL_PLAYER_STATUS_SLOWFORWARD:
+                                printf("Current State : Slow Forward\n");
+                                break;
+                            case FSL_PLAYER_STATUS_FASTBACKWARD:
+                                printf("Current State : Fast Backward\n");
+                                break;
+                            default:
+                                printf("Current State : Unknown\n");
+                                break;
+                        }
+                        break;
+                    }
+                    case 'p':
+                    {
+                        fsl_player_u64 pos = 0;
+                        pplayer->klass->get_property(pplayer, FSL_PLAYER_PROPERTY_ELAPSED, (void*)(&pos));
+                        printf("Current playing position : %lld\n", pos);
+                        break;
+                    }
+                    case 'u':
+                    {
+                        fsl_player_u64 duration = 0;
+                        pplayer->klass->get_property(pplayer, FSL_PLAYER_PROPERTY_DURATION, (void*)(&duration));
+                        printf("Duration : %lld\n", duration);
+                        break;
+                    }
+                    case 'z':
+                    {
+                        fsl_player_display_parameter disp = {0};
+                        pplayer->klass->get_property(pplayer, FSL_PLAYER_PROPERTY_DISP_PARA, (void*)(&disp));
+                        printf("Current video display area : %d %d %d %d\n", disp.offsetx, disp.offsety, disp.disp_width, disp.disp_height);
+                        break;
+                    }
+                    case 'k':
+                    {
+                        fsl_player_video_crop crop = {0};
+                        pplayer->klass->get_property(pplayer, FSL_PLAYER_PROPERTY_VIDEO_CROP, (void*)(&crop));
+                        printf("Current video crop : %d %d %d %d\n", crop.left, crop.right, crop.top, crop.bottom);
+                        break;
+                    }
+                    case 't':
+                    {
+                        fsl_player_s32 rotation = 0;
+                        pplayer->klass->get_property(pplayer, FSL_PLAYER_PROPERTY_ROTATION, (void*)(&rotation));
+                        printf("Current rotation : %d\n", rotation);
+                        break;
+                    }
+                    case 'c':
+                    {
+                        double playback_rate = 0.0;
+                        pplayer->klass->get_property(pplayer, FSL_PLAYER_PROPERTY_PLAYBACK_RATE, (void*)(&playback_rate));
+                        printf("Current play rate : %1.1f\n", playback_rate);
+                        break;
+                    }
+                    default:
+                        printf("Unknown query command:%s\n", sCommand);
+                        break;
+                }
+                break;
+            }
+
+            case 'l':
+            {
+                fsl_player_drm_format drm_format;
+                kb_restore_term(STDIN_FILENO);
+                gbdisplay = FSL_PLAYER_FALSE;
+                gets(sCommand);
+                char *p = sCommand;
+                fsl_player_s32 i = 0;
+                fsl_player_s32 len = strlen(sCommand);
+                while (i < len) {
+                    if (*p != ' ' && *p != '\t')
+                        break;
+                    p++;
+                    i++;
+                }
+                gbdisplay = FSL_PLAYER_TRUE;
+                kb_set_raw_term(STDIN_FILENO);
+
+                pplayer->klass->stop(pplayer);
+                printf("Set file : %s\n", p);
+                strcpy(opt->cur_name, p);
+                opt->current->name = opt->cur_name;
+                pplayer->klass->set_media_location(pplayer, p, &drm_format);
+                pplayer->klass->play(pplayer);
+                break;
+            }
 
             default:
                 //printf("Default: Nothing has been done!\n");
                 break;
         }
+        fflush(stdout);
+        fflush(stdin);
     }
     kb_restore_term (STDIN_FILENO);
 
