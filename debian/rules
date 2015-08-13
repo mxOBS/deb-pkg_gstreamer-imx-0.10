@@ -6,8 +6,8 @@ export DH_VERBOSE=1
 # import standard compile flags
 include /usr/share/dpkg/buildflags.mk
 
-# find i.mx kernel headers
-KHDRDIR=$(shell echo /usr/include/kernel-*-cubox-i)
+# specify i.mx kernel headers
+KHDRDIR=/usr/include/imx-kernel-api
 
 %:
 	dh $@ --parallel
